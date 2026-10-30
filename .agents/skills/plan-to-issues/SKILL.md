@@ -30,6 +30,31 @@ Closing one, with the closing comment from AGENTS.md:
 gh issue close <n> -c "<closing comment>"
 ```
 
+## Issue shape here
+
+Agreed with the human for this repo, so step 4 is already answered:
+
+```md
+Source: plan.md § <n>
+
+## Scope
+<what this issue covers, from the plan section>
+
+## Done when
+<the plan's "Done when", verbatim where it has one>
+
+## Blocked by
+<#n, #m or "—">
+```
+
+Label every issue `plan:<plan name from front matter>` (create it once with `gh label create`).
+
+A step that waits on someone outside the lane (a reviewer, a deploy, a reply) gets its own issue.
+It stays open until they confirm and blocks every step after it: sent is not reviewed.
+
+Reference issues in commits with `refs #<n>`, not `closes #<n>`: an auto-close skips the closing
+comment. Close with `gh issue close <n> -c` instead.
+
 ## No `gh`
 
 Steps 1–4 hold either way. GitHub reachable another way (a connector, the REST API, the web UI):
