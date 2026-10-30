@@ -1,0 +1,58 @@
+# Plan morning-digest § 3 and § 4. Saves /digest/<night> as one HTML file and puts it on Pages.
+# The preview is never committed (ADR 0003): it is saved on the runner and deployed from there.
+# Run with lane_marker set for the review; run again with it empty to take the marker off.
+# How to run it: .agents/skills/preview-upload/SKILL.md
+name: preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      night:
+        description: Night to preview (YYYY-MM-DD)
+        default: '2026-10-28'
+      lane_marker:
+        description: LANE_MARKER for the banner; empty for "no marker set"
+        default: ''
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Save the page
+        env:
+          LANE_MARKER: ${{ inputs.lane_marker }}
+          NIGHT: ${{ inputs.night }}
+          PORT: '8799'
+        run: |
+          pnpm start > rig.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf "http://localhost:$PORT/health" >/dev/null && break; sleep 1; done
+          mkdir -p site
+          curl -sf "http://localhost:$PORT/digest/$NIGHT" -o site/index.html
+          kill %1
+          grep -c '<tr' site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
