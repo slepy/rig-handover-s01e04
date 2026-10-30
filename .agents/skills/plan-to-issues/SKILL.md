@@ -52,8 +52,9 @@ Label every issue `plan:<plan name from front matter>` (create it once with `gh 
 A step that waits on someone outside the lane (a reviewer, a deploy, a reply) gets its own issue.
 It stays open until they confirm and blocks every step after it: sent is not reviewed.
 
-Reference issues in commits with `refs #<n>`, not `closes #<n>`: an auto-close skips the closing
-comment. Close with `gh issue close <n> -c` instead.
+Commits keep the styleguide's `closes #<n>`, but only on the commit that makes "Done when" hold;
+earlier ones say `refs #<n>`. Post the closing comment before you push that commit to the default
+branch: the push auto-closes the issue, and the comment must already be there.
 
 ## No `gh`
 
